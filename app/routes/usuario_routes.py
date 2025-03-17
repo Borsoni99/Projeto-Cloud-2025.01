@@ -1,8 +1,24 @@
 from flask import Blueprint, request, jsonify
 from app.models.models import db, Usuario, UsuarioConfig, MoedasAtivas
 from decimal import Decimal
+from binance.client import Client
+from binance.exceptions import BinanceAPIException
 
 bp = Blueprint('usuario', __name__)
+
+# Add this function to get all trading pairs from Binance
+def get_binance_trading_pairs():
+    try:
+        client = Client(None, None)  # We don't need API keys for public endpoints
+        exchange_info = client.get_exchange_info()
+        trading_pairs = [symbol['symbol'] for symbol in exchange_info['symbols'] if symbol['status'] == 'TRADING']
+        return trading_pairs
+    except BinanceAPIException as e:
+        print(f"Binance API error: {e}")
+        return []
+    except Exception as e:
+        print(f"Error fetching trading pairs: {e}")
+        return []
 
 @bp.route('/usuario', methods=['POST'])
 def create_usuario():
@@ -112,12 +128,25 @@ def create_moeda_ativa(usuario_id):
     if not data or not data.get('simbolo'):
         return jsonify({'error': 'Symbol is required'}), 400
 
+    # Get the symbol and convert to uppercase (Binance uses uppercase symbols)
+    simbolo = data['simbolo'].upper()
+
+    # Get available trading pairs from Binance
+    available_pairs = get_binance_trading_pairs()
+    
+    # Check if the symbol exists in Binance
+    if simbolo not in available_pairs:
+        return jsonify({
+            'error': 'Invalid trading pair',
+            'message': f'The symbol {simbolo} is not available for trading on Binance'
+        }), 400
+
     usuario = Usuario.query.get(usuario_id)
     if not usuario:
         return jsonify({'error': 'Usuario not found'}), 404
 
     new_moeda = MoedasAtivas(
-        moedas_ativas_simbolo=data['simbolo'],
+        moedas_ativas_simbolo=simbolo,
         usuario_id=usuario_id
     )
 
@@ -142,4 +171,16 @@ def delete_moeda_ativa(usuario_id, moeda_id):
         return jsonify({'message': 'Moeda ativa deleted successfully'}), 200
     except Exception as e:
         db.session.rollback()
+        return jsonify({'error': str(e)}), 500
+
+# Add a new endpoint to get all available trading pairs
+@bp.route('/trading-pairs', methods=['GET'])
+def get_trading_pairs():
+    try:
+        trading_pairs = get_binance_trading_pairs()
+        return jsonify({
+            'trading_pairs': trading_pairs,
+            'count': len(trading_pairs)
+        }), 200
+    except Exception as e:
         return jsonify({'error': str(e)}), 500
