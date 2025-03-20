@@ -5,3 +5,4 @@ __pycache__/
 .Python
 *.pyc
 .env
+app/services/__pycache__/binance_service.cpython-313.pyc
