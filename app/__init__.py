@@ -1,20 +1,22 @@
 from flask import Flask
 from app.config.config import Config
-from app.models.models import db
-from app.routes.usuario_routes import bp as usuario_bp
+from app.controller.usuario_controller import usuario_bp
+from app.controller.moedas_ativas_controller import moedas_ativas_bp
+from app.controller.usuario_config_controller import usuario_config_bp
+from app.database import db
+import pymysql
+pymysql.install_as_MySQLdb()
 
-def create_app(config_class=Config):
+def create_app():
     app = Flask(__name__)
-    app.config.from_object(config_class)
+    app.config.from_object(Config)
     
     # Initialize extensions
     db.init_app(app)
     
     # Register blueprints
-    app.register_blueprint(usuario_bp, url_prefix='/api')
-    
-    # Create database tables
-    with app.app_context():
-        db.create_all()
+    app.register_blueprint(usuario_bp, url_prefix="/usuario")
+    app.register_blueprint(moedas_ativas_bp, url_prefix="/moedas_ativas")
+    app.register_blueprint(usuario_config_bp, url_prefix="/usuario_config")
     
     return app 
