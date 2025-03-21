@@ -1,1 +1,0 @@
-# Este arquivo permite que o diretório request seja importado como um pacote Python 
