@@ -2,7 +2,8 @@ from flask import Blueprint, request, jsonify
 from app.models.usuario import Usuario
 from app.models.moedas_ativas import MoedasAtivas
 from app.database import db
-from app.controller.usuario_controller import get_binance_trading_pairs
+from app.services.binance_service import BinanceService
+from decimal import Decimal
 
 moedas_ativas_bp = Blueprint('moedas_ativas', __name__)
 
@@ -10,7 +11,9 @@ moedas_ativas_bp = Blueprint('moedas_ativas', __name__)
 def get_trading_pairs():
     """Obtém todos os pares de trading disponíveis na Binance"""
     try:
-        trading_pairs = get_binance_trading_pairs()
+        binance_service = BinanceService(None, None)
+        
+        trading_pairs = binance_service.get_binance_trading_pairs()
         return jsonify({
             'trading_pairs': trading_pairs,
             'count': len(trading_pairs)
@@ -20,7 +23,7 @@ def get_trading_pairs():
 
 @moedas_ativas_bp.route('/<int:usuario_id>', methods=['GET'])
 def get_moedas_ativas(usuario_id):
-    """Obtém todas as moedas ativas de um usuário"""
+    """Obtém todas as moedas ativas de um usuário com seus últimos preços"""
     try:
         # Verificar se o usuário existe
         usuario = Usuario.query.get(usuario_id)
@@ -30,13 +33,28 @@ def get_moedas_ativas(usuario_id):
         # Obter todas as moedas ativas do usuário
         moedas = MoedasAtivas.query.filter_by(usuario_id=usuario_id).all()
         
+        # Inicializar serviço Binance (sem chaves API, pois só precisamos de dados públicos)
+        binance_service = BinanceService(None, None)
+        
         # Montar resposta
         resultado = []
         for moeda in moedas:
-            resultado.append({
-                'id': moeda.moedas_ativas_id,
-                'simbolo': moeda.moedas_ativas_simbolo
-            })
+            # Obter último preço da moeda
+            preco_info = binance_service.get_symbol_price(moeda.moedas_ativas_simbolo)
+            
+            if preco_info['success']:
+                resultado.append({
+                    'id': moeda.moedas_ativas_id,
+                    'simbolo': moeda.moedas_ativas_simbolo,
+                    'ultimo_preco': float(preco_info['price'])
+                })
+            else:
+                resultado.append({
+                    'id': moeda.moedas_ativas_id,
+                    'simbolo': moeda.moedas_ativas_simbolo,
+                    'ultimo_preco': None,
+                    'erro': preco_info['error']
+                })
             
         return jsonify({
             'total': len(resultado),
@@ -57,9 +75,11 @@ def create_moeda_ativa(usuario_id):
     usuario = Usuario.query.get(usuario_id)
     if not usuario:
         return jsonify({'error': 'Usuário não encontrado'}), 404
+    
+    binance_service = BinanceService(None, None)
         
     # Obter pares de trading disponíveis na Binance
-    available_pairs = get_binance_trading_pairs()
+    available_pairs = binance_service.get_binance_trading_pairs()
     
     # Suporte para adicionar uma única moeda ou múltiplas moedas
     simbolos = []

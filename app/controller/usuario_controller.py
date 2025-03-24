@@ -9,20 +9,6 @@ from app.database import db
 
 usuario_bp = Blueprint('usuario', __name__)
 
-# Função auxiliar para obter pares de trading da Binance
-def get_binance_trading_pairs():
-    try:
-        client = Client(None, None)  # Não precisamos de chaves API para endpoints públicos
-        exchange_info = client.get_exchange_info()
-        trading_pairs = [symbol['symbol'] for symbol in exchange_info['symbols'] if symbol['status'] == 'TRADING']
-        return trading_pairs
-    except BinanceAPIException as e:
-        print(f"Erro da API Binance: {e}")
-        return []
-    except Exception as e:
-        print(f"Erro ao buscar pares de trading: {e}")
-        return []
-
 # Criar usuário
 @usuario_bp.route('', methods=['POST'])
 def create_usuario():
@@ -175,57 +161,6 @@ def delete_usuario(usuario_id):
     except Exception as e:
         db.session.rollback()
         return jsonify({'error': str(e)}), 500
-
-# Criar ordem na Binance
-@usuario_bp.route('/<int:usuario_id>/create-order', methods=['POST'])
-def create_binance_order(usuario_id):
-    data = request.get_json()
-
-    if not data or not data.get('symbol') or not data.get('quantity'):
-        return jsonify({'error': 'Símbolo e quantidade são obrigatórios'}), 400
-
-    # Obtém usuário e verifica chaves API
-    usuario = Usuario.query.get(usuario_id)
-    if not usuario:
-        return jsonify({'error': 'Usuário não encontrado'}), 404
-
-    if not usuario.usuario_binanceApiKey or not usuario.usuario_binanceSecretKey:
-        return jsonify({'error': 'Credenciais da API Binance não configuradas'}), 400
-
-    symbol = data['symbol'].upper()
-    quantity = float(data['quantity'])
-
-    # Inicializa o serviço Binance
-    binance_service = BinanceService(
-        usuario.usuario_binanceApiKey,
-        usuario.usuario_binanceSecretKey
-    )
-
-    # Primeiro obtém informações do símbolo para validar
-    symbol_info = binance_service.get_symbol_info(symbol)
-    if not symbol_info['success']:
-        return jsonify({'error': symbol_info['error']}), 400
-
-    # Cria ordem de teste primeiro
-    test_order = binance_service.create_test_order(symbol, quantity)
-    if not test_order['success']:
-        return jsonify({
-            'error': 'Teste de ordem falhou',
-            'details': test_order['error']
-        }), 400
-
-    # Se a ordem de teste for bem-sucedida, cria ordem real
-    order_result = binance_service.create_buy_order(symbol, quantity)
-    if not order_result['success']:
-        return jsonify({
-            'error': 'Criação de ordem falhou',
-            'details': order_result['error']
-        }), 400
-
-    return jsonify({
-        'message': 'Ordem criada com sucesso',
-        'order': order_result['order']
-    }), 201
 
 # Obter configuração do usuário
 @usuario_bp.route('/<int:usuario_id>/config', methods=['GET'])
