@@ -1,12 +1,14 @@
 from flask import Blueprint, request, jsonify
 from app.models.usuario import Usuario
 from app.models.ordem import Ordem, OrdemFill
+from app.models.ordem_relatorio import OrdemRelatorio
 from app.request.ordem_request import OrdemRequest
 from app.response.ordem_response import OrdemResponse
 from app.response.ordem_fill_response import OrdemFillResponse
 from app.services.binance_service import BinanceService
 from app.database import db
 from decimal import Decimal
+from datetime import datetime
 
 ordem_bp = Blueprint('ordem', __name__)
 
@@ -137,6 +139,38 @@ def create_ordem(usuario_id):
         nova_ordem.fills = fills
         
         db.session.add(nova_ordem)
+        
+        # Atualizar relatório de ordens
+        data_atual = datetime.now()
+        
+        # Se for uma ordem executada, atualizar o relatório
+        if status == 'EXECUTADA' and qtd_executada > 0:
+            if ordem_request.tp_operacao == 'COMPRA':
+                # Para compras, criar um novo registro no relatório
+                relatorio = OrdemRelatorio(
+                    usuario_id=usuario_id,
+                    preco_compra=preco_medio,
+                    preco_venda=Decimal('0'),  # Inicialmente sem venda
+                    qtd=qtd_executada,
+                    moeda=ordem_request.simbolo,  # Usar o símbolo completo
+                    data_operacao=data_atual
+                )
+                db.session.add(relatorio)
+            else:  # VENDA
+                # Para vendas, buscar um registro de compra correspondente 
+                # com a mesma quantidade e ainda não vendido
+                relatorio = OrdemRelatorio.query.filter_by(
+                    usuario_id=usuario_id,
+                    moeda=ordem_request.simbolo,
+                    preco_venda=0,
+                    qtd=qtd_executada
+                ).order_by(OrdemRelatorio.data_operacao).first()
+                
+                # Se encontrou um registro correspondente, atualizar com o preço de venda
+                if relatorio:
+                    relatorio.preco_venda = preco_medio
+                    relatorio.data_operacao = data_atual
+        
         db.session.commit()
         
         # Criar resposta
@@ -240,6 +274,50 @@ def get_ordem(usuario_id, ordem_id):
         )
         
         return jsonify(ordem_response.__dict__), 200
+        
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+@ordem_bp.route('/relatorios/<int:usuario_id>', methods=['GET'])
+def get_relatorios(usuario_id):
+    """Lista todos os relatórios de ordens de um usuário"""
+    try:
+        # Verificar se o usuário existe
+        usuario = Usuario.query.get(usuario_id)
+        if not usuario:
+            return jsonify({'error': 'Usuário não encontrado'}), 404
+            
+        # Obter todos os relatórios do usuário
+        relatorios = OrdemRelatorio.query.filter_by(usuario_id=usuario_id).all()
+        
+        # Montar resposta
+        resultado = []
+        for relatorio in relatorios:
+            lucro = None
+            if relatorio.preco_venda > 0:
+                # Calcular lucro/prejuízo se a moeda foi vendida
+                lucro = float(relatorio.preco_venda - relatorio.preco_compra)
+                percentual = float((relatorio.preco_venda / relatorio.preco_compra - 1) * 100) if relatorio.preco_compra > 0 else 0
+            else:
+                lucro = 0
+                percentual = 0
+                
+            resultado.append({
+                'id': relatorio.id,
+                'moeda': relatorio.moeda,
+                'quantidade': float(relatorio.qtd),
+                'preco_compra': float(relatorio.preco_compra),
+                'preco_venda': float(relatorio.preco_venda),
+                'data_operacao': relatorio.data_operacao.strftime('%Y-%m-%d %H:%M:%S'),
+                'lucro': lucro,
+                'percentual': round(percentual, 2),
+                'status': 'VENDIDO' if relatorio.preco_venda > 0 else 'EM CARTEIRA'
+            })
+            
+        return jsonify({
+            'total': len(resultado),
+            'relatorios': resultado
+        }), 200
         
     except Exception as e:
         return jsonify({'error': str(e)}), 500 
