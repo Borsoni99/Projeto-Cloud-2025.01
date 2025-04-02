@@ -9,6 +9,34 @@ from app.database import db
 
 usuario_bp = Blueprint('usuario', __name__)
 
+@usuario_bp.route('/login', methods=['POST'])
+def login():
+    data = request.get_json()
+
+    if not data or not data.get('usuario_login') or not data.get('usuario_senha'):
+        return jsonify({'error': 'Campos obrigatórios não informados'}), 400
+
+    try:
+        usuario = Usuario.query.filter_by(usuario_login=data['usuario_login']).first()
+        
+        if usuario and usuario.usuario_senha == data['usuario_senha']:
+            return jsonify({
+                'success': True,
+                'usuario_id': usuario.usuario_id,
+                'message': 'Login efetuado com sucesso'
+            }), 200
+        else:
+            return jsonify({
+                'success': False,
+                'error': 'Usuário ou senha inválidos'
+            }), 401
+            
+    except Exception as e:
+        return jsonify({
+            'success': False,
+            'error': str(e)
+        }), 500
+
 # Criar usuário
 @usuario_bp.route('', methods=['POST'])
 def create_usuario():

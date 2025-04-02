@@ -1,0 +1,5 @@
+[pages]
+hide = ["Home.py", "cadastro_hidden.py"]
+
+[pages.menu]
+hide = ["Home.py", "cadastro_hidden.py"] 

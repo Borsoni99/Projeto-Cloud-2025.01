@@ -157,19 +157,24 @@ def create_ordem(usuario_id):
                 )
                 db.session.add(relatorio)
             else:  # VENDA
-                # Para vendas, buscar um registro de compra correspondente 
-                # com a mesma quantidade e ainda não vendido
+                # Verificar se foi fornecido um ordem_relatorio_id
+                ordem_relatorio_id = data.get('ordem_relatorio_id')
+                if not ordem_relatorio_id:
+                    return jsonify({'error': 'ordem_relatorio_id é obrigatório para ordens de venda'}), 400
+                    
+                # Buscar o registro do relatório
                 relatorio = OrdemRelatorio.query.filter_by(
+                    id=ordem_relatorio_id,
                     usuario_id=usuario_id,
-                    moeda=ordem_request.simbolo,
-                    preco_venda=0,
-                    qtd=qtd_executada
-                ).order_by(OrdemRelatorio.data_operacao).first()
+                    preco_venda=0
+                ).first()
                 
-                # Se encontrou um registro correspondente, atualizar com o preço de venda
-                if relatorio:
-                    relatorio.preco_venda = preco_medio
-                    relatorio.data_operacao = data_atual
+                if not relatorio:
+                    return jsonify({'error': 'Ordem não encontrada ou já vendida'}), 404
+                    
+                # Atualizar o relatório com o preço de venda
+                relatorio.preco_venda = preco_medio
+                relatorio.data_operacao = data_atual
         
         db.session.commit()
         
@@ -317,6 +322,41 @@ def get_relatorios(usuario_id):
         return jsonify({
             'total': len(resultado),
             'relatorios': resultado
+        }), 200
+        
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+@ordem_bp.route('/relatorios/<int:usuario_id>/abertos', methods=['GET'])
+def get_ordens_abertas(usuario_id):
+    """Lista todas as ordens em aberto (não vendidas) de um usuário"""
+    try:
+        # Verificar se o usuário existe
+        usuario = Usuario.query.get(usuario_id)
+        if not usuario:
+            return jsonify({'error': 'Usuário não encontrado'}), 404
+            
+        # Obter todos os relatórios do usuário onde preco_venda é 0
+        relatorios = OrdemRelatorio.query.filter_by(
+            usuario_id=usuario_id,
+            preco_venda=0
+        ).all()
+        
+        # Montar resposta
+        resultado = []
+        for relatorio in relatorios:
+            resultado.append({
+                'id': relatorio.id,
+                'moeda': relatorio.moeda,
+                'quantidade': float(relatorio.qtd),
+                'preco_compra': float(relatorio.preco_compra),
+                'data_operacao': relatorio.data_operacao.strftime('%Y-%m-%d %H:%M:%S'),
+                'status': 'EM CARTEIRA'
+            })
+            
+        return jsonify({
+            'total': len(resultado),
+            'ordens_abertas': resultado
         }), 200
         
     except Exception as e:

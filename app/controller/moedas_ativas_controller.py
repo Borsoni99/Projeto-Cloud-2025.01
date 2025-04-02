@@ -4,6 +4,8 @@ from app.models.moedas_ativas import MoedasAtivas
 from app.database import db
 from app.services.binance_service import BinanceService
 from decimal import Decimal
+from binance.client import Client
+
 
 moedas_ativas_bp = Blueprint('moedas_ativas', __name__)
 
@@ -11,15 +13,25 @@ moedas_ativas_bp = Blueprint('moedas_ativas', __name__)
 def get_trading_pairs():
     """Obtém todos os pares de trading disponíveis na Binance"""
     try:
-        binance_service = BinanceService(None, None)
+        # Usar a função auxiliar que não requer chaves API
+        trading_pairs = get_binance_trading_pairs()
         
-        trading_pairs = binance_service.get_binance_trading_pairs()
+        if not trading_pairs:
+            return jsonify({
+                'success': False,
+                'error': 'Nenhum par de trading encontrado'
+            }), 404
+            
         return jsonify({
+            'success': True,
             'trading_pairs': trading_pairs,
             'count': len(trading_pairs)
         }), 200
     except Exception as e:
-        return jsonify({'error': str(e)}), 500
+        return jsonify({
+            'success': False,
+            'error': str(e)
+        }), 500
 
 @moedas_ativas_bp.route('/<int:usuario_id>', methods=['GET'])
 def get_moedas_ativas(usuario_id):
@@ -180,3 +192,33 @@ def delete_moeda_por_simbolo(usuario_id, simbolo):
     except Exception as e:
         db.session.rollback()
         return jsonify({'error': str(e)}), 500
+    
+# Função auxiliar para obter pares de trading da Binance
+def get_binance_trading_pairs():
+    """
+    Obtém todos os pares de trading disponíveis na Binance
+    Não requer chaves API pois usa endpoints públicos
+    """
+    try:
+        # Criar cliente sem chaves API para endpoints públicos
+        client = Client(None, None)
+        
+        # Obter informações da exchange
+        exchange_info = client.get_exchange_info()
+        
+        # Filtrar apenas pares que estão ativos para trading
+        trading_pairs = [
+            symbol['symbol'] 
+            for symbol in exchange_info['symbols'] 
+            if symbol['status'] == 'TRADING' and 
+               symbol['isSpotTradingAllowed'] and 
+               symbol['quoteAsset'] == 'USDT'  # Apenas pares com USDT
+        ]
+        
+        # Ordenar por símbolo
+        trading_pairs.sort()
+        
+        return trading_pairs
+    except Exception as e:
+        print(f"Erro ao buscar pares de trading: {e}")
+        return []

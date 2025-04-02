@@ -1,4 +1,5 @@
 from flask import Flask
+from flask_cors import CORS
 from app.config.config import Config
 from app.controller.usuario_controller import usuario_bp
 from app.controller.moedas_ativas_controller import moedas_ativas_bp
@@ -9,6 +10,11 @@ pymysql.install_as_MySQLdb()
 
 def create_app():
     app = Flask(__name__)
+    
+    # Configurar CORS
+    CORS(app, resources={r"/api/*": {"origins": "*"}})
+    
+    # Carregar configurações
     app.config.from_object(Config)
     
     # Initialize extensions

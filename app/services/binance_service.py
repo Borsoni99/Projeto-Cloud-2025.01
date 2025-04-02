@@ -1,10 +1,11 @@
 from binance.client import Client
 from binance.exceptions import BinanceAPIException
 from decimal import Decimal
+from app.config.config import Config
 
 class BinanceService:
     def __init__(self, api_key, api_secret):
-        self.client = Client(api_key, api_secret, testnet=True)  # Using testnet
+        self.client = Client(api_key, api_secret, testnet=True)  # Using mainnet
 
     def get_symbol_info(self, symbol: str):
         """
@@ -79,16 +80,18 @@ class BinanceService:
                 'error': str(e)
             }
 
-# Função auxiliar para obter pares de trading da Binance
-def get_binance_trading_pairs():
-    try:
-        client = Client(None, None)  # Não precisamos de chaves API para endpoints públicos
-        exchange_info = client.get_exchange_info()
-        trading_pairs = [symbol['symbol'] for symbol in exchange_info['symbols'] if symbol['status'] == 'TRADING']
-        return trading_pairs
-    except BinanceAPIException as e:
-        print(f"Erro da API Binance: {e}")
-        return []
-    except Exception as e:
-        print(f"Erro ao buscar pares de trading: {e}")
-        return []
+    def get_binance_trading_pairs(self):
+        """
+        Obtém todos os pares de trading disponíveis na Binance
+        """
+        try:
+            exchange_info = self.client.get_exchange_info()
+            trading_pairs = [symbol['symbol'] for symbol in exchange_info['symbols'] if symbol['status'] == 'TRADING']
+            return trading_pairs
+        except BinanceAPIException as e:
+            print(f"Erro da API Binance: {e}")
+            return []
+        except Exception as e:
+            print(f"Erro ao buscar pares de trading: {e}")
+            return []
+
