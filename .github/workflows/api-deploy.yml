@@ -2,7 +2,7 @@ name: Deploy API to Azure Web App
 
 on:
   push:
-    branches: [ interface ]
+    branches: [ main ]
     paths:
       - 'app/**'
       - 'run.py'
