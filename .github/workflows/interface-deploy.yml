@@ -2,7 +2,7 @@ name: Deploy Interface to Azure Web App
 
 on:
   push:
-    branches: [ main ]
+    branches: [ interface ]
     paths:
       - 'interface/**'
       - 'run_interface.py'
