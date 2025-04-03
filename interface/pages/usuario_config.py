@@ -2,13 +2,13 @@ import os
 import sys
 
 # Add the project root directory to Python path
-project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), "../../.."))
+project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), "../.."))
 sys.path.insert(0, project_root)
 
 import streamlit as st
 import requests
-from app.config.config import Config
-from app.streamlit.components.sidebar import show_sidebar
+from interface.config import Config
+from interface.components.sidebar import show_sidebar
 
 # Configure page settings
 st.set_page_config(

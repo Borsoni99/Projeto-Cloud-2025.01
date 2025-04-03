@@ -2,17 +2,17 @@ import os
 import sys
 
 # Add the project root directory to Python path
-project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), "../../.."))
+project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 sys.path.insert(0, project_root)
 
 import streamlit as st
 import requests
 import json
-from app.config.config import Config
+from interface.config import Config
 
 # Configure page settings
 st.set_page_config(
-    page_title="Trading Bot - Cadastro",
+    page_title="Trading Bot - Login",
     page_icon="🤖",
     layout="centered",
     initial_sidebar_state="collapsed"
@@ -28,7 +28,7 @@ hide_menu_style = """
         div[data-testid="stToolbar"] {display: none !important;}
         [data-testid="stSidebar"] {display: none !important;}
         header {visibility: hidden !important;}
-
+        
         /* Remove padding and gap */
         .block-container {
             padding-top: 0;
@@ -36,8 +36,8 @@ hide_menu_style = """
             margin-top: 0;
         }
         
-        /* Form styles */
-        .register-container {
+        /* Login form styles */
+        .login-container {
             max-width: 380px;
             margin: 0 auto;
             padding: 32px;
@@ -47,7 +47,7 @@ hide_menu_style = """
             transform: translate(-50%, -50%);
         }
         
-        .register-container h1 {
+        .login-container h1 {
             margin-bottom: 32px;
             text-align: center;
             font-size: 2rem;
@@ -175,51 +175,49 @@ hide_menu_style = """
         """
 st.markdown(hide_menu_style, unsafe_allow_html=True)
 
-def register_user(username, password, binance_api_key=None, binance_secret_key=None):
-    """Registra um novo usuário na API"""
+def login_user(username, password):
+    """Autentica o usuário na API"""
     try:
-        data = {
-            'usuario_login': username,
-            'usuario_senha': password,
-        }
-        
-        if binance_api_key and binance_secret_key:
-            data.update({
-                'usuario_binanceApiKey': binance_api_key,
-                'usuario_binanceSecretKey': binance_secret_key
-            })
-
         response = requests.post(
-            f'{Config.API_BASE_URL}/usuario',
-            json=data
+            f'{Config.API_BASE_URL}/usuario/login',
+            json={
+                'usuario_login': username,
+                'usuario_senha': password
+            }
         )
         return response.json() if response.ok else None
     except requests.exceptions.RequestException:
         return None
 
-# Registration form
-st.markdown('<div class="register-container">', unsafe_allow_html=True)
+# Initialize session state
+if 'logged_in' not in st.session_state:
+    st.session_state['logged_in'] = False
+if 'user_data' not in st.session_state:
+    st.session_state['user_data'] = None
+
+# Login form
+st.markdown('<div class="login-container">', unsafe_allow_html=True)
 st.title("🤖 Trading Bot")
 
 username = st.text_input("Usuário")
 password = st.text_input("Senha", type="password")
-binance_api_key = st.text_input("Binance API Key (opcional)")
-binance_secret_key = st.text_input("Binance Secret Key (opcional)")
 
-if st.button("Criar Conta", type="primary", use_container_width=True):
+if st.button("Entrar", type="primary", use_container_width=True):
     if not username or not password:
-        st.warning("Por favor, preencha os campos obrigatórios")
+        st.warning("Por favor, preencha todos os campos")
     else:
-        result = register_user(username, password, binance_api_key, binance_secret_key)
+        result = login_user(username, password)
+        
         if result and not result.get('error'):
-            st.success("Conta criada com sucesso!")
-            st.switch_page("Home.py")
+            st.session_state['logged_in'] = True
+            st.session_state['user_data'] = result
+            st.switch_page("pages/2_Dashboard.py")
         else:
-            error_msg = result.get('error') if result else "Erro ao criar conta"
+            error_msg = result.get('error') if result else "Falha no login"
             st.error(error_msg)
 
 st.markdown("---")
-if st.button("Voltar para Login", use_container_width=True):
-    st.switch_page("Home.py")
+if st.button("Criar nova conta", use_container_width=True):
+    st.switch_page("pages/_cadastro.py")
 
-st.markdown('</div>', unsafe_allow_html=True)
+st.markdown('</div>', unsafe_allow_html=True) 

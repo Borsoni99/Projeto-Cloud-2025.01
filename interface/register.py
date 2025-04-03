@@ -8,7 +8,7 @@ sys.path.insert(0, project_root)
 import streamlit as st
 import requests
 import json
-from app.config.config import Config
+from interface.config import Config
 
 # Configure page settings
 st.set_page_config(

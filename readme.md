@@ -1,50 +1,108 @@
-# Trading Bot API
+# Trading Bot
 
-A Flask-based REST API for managing trading bot users, configurations, and active cryptocurrencies.
+Este projeto consiste em uma API Flask para gerenciamento de bots de trading e uma interface Streamlit separada.
 
-## Setup
+## Estrutura do Projeto
 
-1. Create a virtual environment:
-```bash
-python -m venv venv
-source venv/bin/activate  # On Windows: venv\Scripts\activate
+```
+Projeto-Cloud-2025.01/
+│
+├── app/                    # API Flask
+│   ├── config/             # Configurações
+│   ├── controller/         # Controladores (endpoints)
+│   ├── database/           # Configuração do banco de dados
+│   ├── models/             # Modelos de dados
+│   └── __init__.py         # Inicialização da aplicação Flask
+│
+├── interface/              # Interface Streamlit
+│   ├── components/         # Componentes reutilizáveis
+│   ├── pages/              # Páginas da aplicação
+│   ├── .streamlit/         # Configuração do Streamlit
+│   ├── config.py           # Configurações específicas da interface
+│   ├── Home.py             # Página inicial (login)
+│   ├── startup.py          # Script para iniciar no Azure
+│   └── requirements.txt    # Dependências específicas da interface
+│
+├── run.py                  # Script para iniciar a API Flask
+└── run_interface.py        # Script para iniciar a interface Streamlit localmente
 ```
 
-2. Install dependencies:
+## Configuração da API
+
+1. Crie um ambiente virtual:
+```bash
+python -m venv venv
+source venv/bin/activate  # No Windows: venv\Scripts\activate
+```
+
+2. Instale as dependências:
 ```bash
 pip install -r requirements.txt
 ```
 
-3. Set up your MySQL database:
-- Make sure MySQL is running
-- Create a database named `trading_bot`
-- Update the database connection URL in `app/config/config.py` if needed
+3. Configure seu banco de dados MySQL:
+- Certifique-se de que o MySQL está em execução
+- Crie um banco de dados chamado `trading_bot`
+- Atualize a URL de conexão do banco de dados em `app/config/config.py` se necessário
 
-4. Run the application:
+4. Execute a aplicação:
 ```bash
 python run.py
 ```
 
-## API Endpoints
+## Configuração da Interface
 
-### Usuario (User)
-- `POST /api/usuario` - Create new user
-- `PUT /api/usuario/<usuario_id>/saldo` - Update user balance
-
-### Usuario Config
-- `POST /api/usuario/<usuario_id>/config` - Create user configuration
-- `GET /api/usuario/<usuario_id>/config` - Get user configuration
-- `PUT /api/usuario/<usuario_id>/config` - Update user configuration
-
-### Moedas Ativas (Active Cryptocurrencies)
-- `POST /api/usuario/<usuario_id>/moedas` - Add active cryptocurrency
-- `DELETE /api/usuario/<usuario_id>/moedas/<moeda_id>` - Delete active cryptocurrency
-
-## Example Requests
-
-### Create User
+1. Instale as dependências específicas da interface:
 ```bash
-curl -X POST http://localhost:5000/api/usuario \
+cd interface
+pip install -r requirements.txt
+```
+
+2. Configure as variáveis de ambiente:
+   - Crie um arquivo `.env` na raiz do projeto com as seguintes variáveis:
+   ```
+   API_BASE_URL=http://localhost:8000  # URL da API Flask
+   STREAMLIT_SERVER_PORT=8501  # Porta para o Streamlit
+   ```
+
+3. Execute a interface localmente:
+```bash
+python run_interface.py
+```
+
+## Implantação no Azure
+
+### API Flask
+
+- Use o arquivo `run.py` para iniciar a API
+- Comando de inicialização: `gunicorn --bind=0.0.0.0:8000 run:app`
+- Porta: 8000
+
+### Interface Streamlit
+
+- Use o arquivo `interface/startup.py` para iniciar a interface
+- Comando de inicialização: `python interface/startup.py`
+- Porta: 8000 (no Azure)
+
+## Endpoints da API
+
+### Usuario (Usuário)
+- `POST /usuario` - Criar novo usuário
+- `POST /usuario/login` - Login de usuário
+
+### Moedas Ativas
+- `POST /moedas_ativas/<usuario_id>` - Adicionar criptomoeda ativa
+- `GET /moedas_ativas/<usuario_id>` - Listar criptomoedas ativas
+- `DELETE /moedas_ativas/<usuario_id>/<simbolo>` - Excluir criptomoeda ativa
+
+### Ordem
+- `POST /ordem/<usuario_id>` - Criar ordem de compra/venda
+
+## Exemplos de Requisições
+
+### Criar Usuário
+```bash
+curl -X POST http://localhost:8000/usuario \
   -H "Content-Type: application/json" \
   -d '{
     "usuario_login": "testuser",
@@ -54,29 +112,19 @@ curl -X POST http://localhost:5000/api/usuario \
   }'
 ```
 
-### Update User Balance
+### Login de Usuário
 ```bash
-curl -X PUT http://localhost:5000/api/usuario/1/saldo \
+curl -X POST http://localhost:8000/usuario/login \
   -H "Content-Type: application/json" \
   -d '{
-    "saldo": 1000.50
+    "usuario_login": "testuser",
+    "usuario_senha": "password123"
   }'
 ```
 
-### Create User Config
+### Adicionar Criptomoeda Ativa
 ```bash
-curl -X POST http://localhost:5000/api/usuario/1/config \
-  -H "Content-Type: application/json" \
-  -d '{
-    "valor_compra": 10.00,
-    "pct_ganho": 15.00,
-    "pct_perda": 5.00
-  }'
-```
-
-### Add Active Cryptocurrency
-```bash
-curl -X POST http://localhost:5000/api/usuario/1/moedas \
+curl -X POST http://localhost:8000/moedas_ativas/1 \
   -H "Content-Type: application/json" \
   -d '{
     "simbolo": "BTCUSDT"
