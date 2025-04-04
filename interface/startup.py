@@ -18,6 +18,15 @@ import sys
 def start_streamlit():
     """Inicia a aplicação Streamlit no ambiente Azure"""
     try:
+        print("Adaptando arquivos para ambiente Azure...")
+        # Executa o adaptador para ajustar os imports
+        try:
+            from azure_adapter import fix_imports
+            fix_imports()
+        except Exception as e:
+            print(f"Erro ao adaptar arquivos: {str(e)}")
+            print("Continuando com a inicialização...")
+        
         print("Iniciando interface Streamlit no ambiente Azure...")
         
         # Define o arquivo principal

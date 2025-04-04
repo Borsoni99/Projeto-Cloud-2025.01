@@ -33,14 +33,41 @@ jobs:
         python -m pip install --upgrade pip
         pip install -r interface/requirements.txt
     
-    - name: Zip artifact for deployment
+    - name: Prepare deployment files
       run: |
         # Criar uma estrutura temporária para o deploy
         mkdir -p deploy_temp
-        # Copiar apenas os arquivos necessários
+        
+        # Copiar todos os arquivos necessários
         cp -r interface/* deploy_temp/
-        cp run_interface.py deploy_temp/
-        # Entrar na pasta temporária e zipar
+        
+        # Não precisamos do run_interface.py pois usamos o startup.py no Azure
+        # cp run_interface.py deploy_temp/
+        
+        # Garantir que o arquivo de configuração exista
+        cat > deploy_temp/web.config << 'EOF'
+        <?xml version="1.0" encoding="utf-8"?>
+        <configuration>
+          <system.webServer>
+            <handlers>
+              <add name="PythonHandler" path="*" verb="*" modules="httpPlatformHandler" resourceType="Unspecified"/>
+            </handlers>
+            <httpPlatform processPath="%home%\python311x64\python.exe"
+                          arguments="startup.py"
+                          stdoutLogEnabled="true"
+                          stdoutLogFile="%home%\LogFiles\python.log">
+              <environmentVariables>
+                <environmentVariable name="PYTHONPATH" value="%home%\site\wwwroot"/>
+              </environmentVariables>
+            </httpPlatform>
+          </system.webServer>
+        </configuration>
+        EOF
+        
+        echo "Arquivos na pasta deploy_temp:"
+        ls -la deploy_temp/
+        
+        # Zipar arquivos
         cd deploy_temp
         zip -r ../release.zip .
 
