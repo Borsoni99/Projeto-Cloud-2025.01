@@ -82,5 +82,5 @@ jobs:
       uses: azure/webapps-deploy@v3
       id: deploy-to-webapp
       with:
-        app-name: ${{ secrets.AZURE_INTERFACE_APP_NAME }}
+        app-name: 'ibmec-trading-bot-interface'
         slot-name: 'Production' 
