@@ -38,8 +38,16 @@ hide_menu_style = """
         button[kind="header"] {display: none !important;}
         div[data-baseweb="tab-list"] {display: none !important;}
         div[role="tablist"] {display: none !important;}
-        div[data-testid="stMarkdownContainer"] > div:first-child {display: none !important;}
         div[data-testid="stSidebarNavContainer"] {display: none !important;}
+        
+        /* Title styling */
+        .stMarkdown {
+            text-align: center !important;
+            font-size: 1.5rem !important;
+            font-weight: bold !important;
+            margin-bottom: 1rem !important;
+            color: white !important;
+        }
         
         /* Remove padding and gap */
         .block-container {
@@ -209,7 +217,9 @@ if 'user_data' not in st.session_state:
 
 # Login form
 st.markdown('<div class="login-container">', unsafe_allow_html=True)
-st.title("🤖 Trading Bot")
+
+# Add title with robot icon
+st.markdown("# 🤖 Trading Bot", unsafe_allow_html=True)
 
 username = st.text_input("Usuário")
 password = st.text_input("Senha", type="password")

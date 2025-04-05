@@ -193,7 +193,37 @@ def delete_moeda_por_simbolo(usuario_id, simbolo):
     except Exception as e:
         db.session.rollback()
         return jsonify({'error': str(e)}), 500
-    
+
+@moedas_ativas_bp.route('/binance/min_quantity/<simbolo>', methods=['GET'])
+def get_min_quantity(simbolo):
+    """Obtém a quantidade mínima permitida para um par de trading"""
+    try:
+        # Inicializar o serviço Binance sem chaves API (apenas dados públicos)
+        binance_service = BinanceService(None, None)
+        
+        # Converter o símbolo para maiúsculo
+        simbolo = simbolo.upper()
+        
+        # Obter a quantidade mínima
+        result = binance_service.get_min_quantity(simbolo)
+        
+        if result['success']:
+            return jsonify({
+                'success': True,
+                'min_quantity': result['min_quantity']
+            }), 200
+        else:
+            return jsonify({
+                'success': False,
+                'error': result['error']
+            }), 400
+            
+    except Exception as e:
+        return jsonify({
+            'success': False,
+            'error': str(e)
+        }), 500
+
 # Função auxiliar para obter pares de trading da Binance
 def get_binance_trading_pairs():
     """

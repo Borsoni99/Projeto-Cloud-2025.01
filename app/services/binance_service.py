@@ -95,3 +95,36 @@ class BinanceService:
             print(f"Erro ao buscar pares de trading: {e}")
             return []
 
+    def get_min_quantity(self, symbol: str):
+        """
+        Obtém a quantidade mínima permitida para um par de trading
+        Args:
+            symbol: Símbolo do par de trading (ex: 'BTCUSDT')
+        Returns:
+            float: Quantidade mínima permitida
+        """
+        try:
+            info = self.client.get_symbol_info(symbol)
+            if info:
+                filters = info['filters']
+                lot_size = next(filter for filter in filters if filter['filterType'] == 'LOT_SIZE')
+                min_qty = float(lot_size['minQty'])
+                return {
+                    'success': True,
+                    'min_quantity': min_qty
+                }
+            return {
+                'success': False,
+                'error': 'Symbol info not found'
+            }
+        except BinanceAPIException as e:
+            return {
+                'success': False,
+                'error': str(e)
+            }
+        except Exception as e:
+            return {
+                'success': False,
+                'error': f'Error getting minimum quantity: {str(e)}'
+            }
+

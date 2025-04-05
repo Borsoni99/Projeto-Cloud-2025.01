@@ -117,11 +117,7 @@ def get_trading_pairs():
     """Obtém todos os pares de trading disponíveis na Binance"""
     try:
         url = f'{Config.API_BASE_URL}/moedas_ativas/trading-pairs'
-        st.write(f"Buscando pares de trading em: {url}")  # Debug
-        
         response = requests.get(url)
-        st.write(f"Status code: {response.status_code}")  # Debug
-        st.write(f"Response: {response.text}")  # Debug
         
         if response.ok:
             data = response.json()
@@ -172,9 +168,6 @@ if 'trading_pairs' not in st.session_state:
         if st.button("🔄 Recarregar Pares de Trading"):
             st.session_state['trading_pairs'] = get_trading_pairs()
             st.rerun()
-
-# Debug - Mostrar pares disponíveis
-st.write("Pares de trading disponíveis:", len(st.session_state.get('trading_pairs', [])))
 
 # Multiselect com filtro de texto
 selected_pairs = st.multiselect(
