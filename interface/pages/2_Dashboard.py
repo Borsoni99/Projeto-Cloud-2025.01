@@ -13,7 +13,8 @@ st.set_page_config(
     page_title="Trading Bot - Dashboard",
     page_icon="🤖",
     layout="wide",
-    initial_sidebar_state="expanded"
+    initial_sidebar_state="expanded",
+    menu_items={}
 )
 
 # Hide Streamlit default menu and footer
@@ -22,8 +23,10 @@ hide_menu_style = """
         #MainMenu {visibility: hidden;}
         footer {visibility: hidden;}
         .stDeployButton {display:none;}
+        
+        /* Hide only the default navigation */
         section[data-testid="stSidebarNav"] {display: none !important;}
-        div[data-testid="stToolbar"] {display: none !important;}
+        div[data-testid="stSidebarNav"] {display: none !important;}
         
         /* Dark theme and general styles */
         .stApp {
@@ -62,6 +65,8 @@ if selected:
         st.switch_page("pages/moedas_ativas.py")
     elif selected == "comprar ordem":
         st.switch_page("pages/comprar_ordem.py")
+    elif selected == "vender ordem":
+        st.switch_page("pages/vender_ordem.py")
 
 st.title("📊 Dashboard")
 

@@ -21,13 +21,25 @@ st.set_page_config(
 # Hide Streamlit default menu and footer
 hide_menu_style = """
         <style>
-        #MainMenu {visibility: hidden;}
-        footer {visibility: hidden;}
-        .stDeployButton {display:none;}
+        #MainMenu {visibility: hidden !important;}
+        footer {visibility: hidden !important;}
+        .stDeployButton {display:none !important;}
+        
+        /* Hide all navigation elements */
         section[data-testid="stSidebarNav"] {display: none !important;}
         div[data-testid="stToolbar"] {display: none !important;}
-        [data-testid="stSidebar"] {display: none !important;}
-        header {visibility: hidden !important;}
+        nav[data-testid="stSidebarNav"] {display: none !important;}
+        div.sidebar-content {display: none !important;}
+        div.sidebar .sidebar-content {display: none !important;}
+        [data-testid="collapsedControl"] {display: none !important;}
+        header[data-testid="stHeader"] {display: none !important;}
+        div[data-testid="stDecoration"] {display: none !important;}
+        div[data-testid="stSidebarNavItems"] {display: none !important;}
+        button[kind="header"] {display: none !important;}
+        div[data-baseweb="tab-list"] {display: none !important;}
+        div[role="tablist"] {display: none !important;}
+        div[data-testid="stMarkdownContainer"] > div:first-child {display: none !important;}
+        div[data-testid="stSidebarNavContainer"] {display: none !important;}
         
         /* Remove padding and gap */
         .block-container {
