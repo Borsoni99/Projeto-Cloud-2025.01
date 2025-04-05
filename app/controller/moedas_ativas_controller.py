@@ -13,8 +13,9 @@ moedas_ativas_bp = Blueprint('moedas_ativas', __name__)
 def get_trading_pairs():
     """Obtém todos os pares de trading disponíveis na Binance"""
     try:
-        # Usar a função auxiliar que não requer chaves API
-        trading_pairs = get_binance_trading_pairs()
+        # Inicializar o serviço Binance sem chaves API
+        binance_service = BinanceService(None, None)
+        trading_pairs = binance_service.get_binance_trading_pairs()
         
         if not trading_pairs:
             return jsonify({
