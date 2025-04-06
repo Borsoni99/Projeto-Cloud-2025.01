@@ -47,6 +47,9 @@ hide_menu_style = """
             font-weight: bold !important;
             margin-bottom: 1rem !important;
             color: white !important;
+            width: 320px !important;
+            margin-left: auto !important;
+            margin-right: auto !important;
         }
         
         /* Remove padding and gap */
@@ -65,6 +68,10 @@ hide_menu_style = """
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 100%;
         }
         
         .login-container h1 {
@@ -72,6 +79,7 @@ hide_menu_style = """
             text-align: center;
             font-size: 2rem;
             color: white;
+            width: 320px;
         }
 
         /* Force all elements to have the same width */
@@ -169,8 +177,9 @@ hide_menu_style = """
         }
 
         hr {
-            margin: 24px auto;
+            margin: 24px auto !important;
             width: 320px !important;
+            border-color: rgba(255, 255, 255, 0.1) !important;
         }
 
         /* Adjust input labels */
@@ -190,6 +199,13 @@ hide_menu_style = """
         /* Fix any overflow issues */
         .stTextInput, .stButton, input {
             box-sizing: border-box !important;
+        }
+        
+        /* Ensure consistent width for all markdown elements */
+        .stMarkdown > div {
+            width: 320px !important;
+            margin-left: auto !important;
+            margin-right: auto !important;
         }
         </style>
         """
