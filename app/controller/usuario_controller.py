@@ -120,6 +120,23 @@ def get_usuario(usuario_id):
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
+# Obter chaves da Binance do usuário
+@usuario_bp.route('/<int:usuario_id>/binance-keys', methods=['GET'])
+def get_binance_keys(usuario_id):
+    try:
+        usuario = Usuario.query.get(usuario_id)
+        
+        if not usuario:
+            return jsonify({'error': 'Usuário não encontrado'}), 404
+            
+        return jsonify({
+            'usuario_id': usuario.usuario_id,
+            'usuario_binanceApiKey': usuario.usuario_binanceApiKey or '',
+            'usuario_binanceSecretKey': usuario.usuario_binanceSecretKey or ''
+        }), 200
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
 # Atualizar usuário
 @usuario_bp.route('/<int:usuario_id>', methods=['PUT'])
 def update_usuario(usuario_id):

@@ -116,13 +116,23 @@ if selected:
 def get_trading_pairs():
     """Obtém todos os pares de trading disponíveis na Binance"""
     try:
-        response = requests.get(f'{Config.API_BASE_URL}/moedas_ativas/trading-pairs')
+        url = f'{Config.API_BASE_URL}/moedas_ativas/trading-pairs'
+        response = requests.get(url)
+        
         if response.ok:
             data = response.json()
-            return data.get('trading_pairs', []) 
+            trading_pairs = data.get('trading_pairs', [])
+            if not trading_pairs:
+                st.warning("Nenhum par de trading retornado pela API")
+            return trading_pairs
         else:
+            st.error(f"Erro ao buscar pares de trading: {response.status_code} - {response.text}")
             return []
+    except requests.exceptions.RequestException as e:
+        st.error(f"Erro de conexão ao buscar pares de trading: {str(e)}")
+        return []
     except Exception as e:
+        st.error(f"Erro inesperado ao buscar pares de trading: {str(e)}")
         return []
 
 def create_moeda_ativa(simbolos):
@@ -152,6 +162,12 @@ st.title("💰 Moedas Ativas")
 # Carregar pares de trading disponíveis
 if 'trading_pairs' not in st.session_state:
     st.session_state['trading_pairs'] = get_trading_pairs()
+    if not st.session_state['trading_pairs']:
+        st.error("Não foi possível carregar os pares de trading. Por favor, recarregue a página.")
+        # Botão para recarregar
+        if st.button("🔄 Recarregar Pares de Trading"):
+            st.session_state['trading_pairs'] = get_trading_pairs()
+            st.rerun()
 
 # Multiselect com filtro de texto
 selected_pairs = st.multiselect(

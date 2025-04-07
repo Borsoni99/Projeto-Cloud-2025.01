@@ -9,12 +9,19 @@ def show_sidebar():
                 border-right: 1px solid rgba(49, 51, 63, 0.2);
             }
 
+            /* Hide only the default navigation */
+            section[data-testid="stSidebarNav"] {display: none !important;}
+            div[data-testid="stSidebarNav"] {display: none !important;}
+            
             /* Menu buttons styling */
             [data-testid="stSidebar"] div[data-testid="stVerticalBlock"] > div > div > div > div > div > button {
                 background-color: transparent !important;
                 color: white !important;
                 border: none !important;
                 text-align: left !important;
+                padding: 0.5rem 1rem !important;
+                width: 100% !important;
+                border-radius: 4px !important;
             }
 
             [data-testid="stSidebar"] div[data-testid="stVerticalBlock"] > div > div > div > div > div > button:hover {

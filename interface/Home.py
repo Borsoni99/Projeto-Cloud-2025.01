@@ -21,13 +21,36 @@ st.set_page_config(
 # Hide Streamlit default menu and footer
 hide_menu_style = """
         <style>
-        #MainMenu {visibility: hidden;}
-        footer {visibility: hidden;}
-        .stDeployButton {display:none;}
+        #MainMenu {visibility: hidden !important;}
+        footer {visibility: hidden !important;}
+        .stDeployButton {display:none !important;}
+        
+        /* Hide all navigation elements */
         section[data-testid="stSidebarNav"] {display: none !important;}
         div[data-testid="stToolbar"] {display: none !important;}
-        [data-testid="stSidebar"] {display: none !important;}
-        header {visibility: hidden !important;}
+        nav[data-testid="stSidebarNav"] {display: none !important;}
+        div.sidebar-content {display: none !important;}
+        div.sidebar .sidebar-content {display: none !important;}
+        [data-testid="collapsedControl"] {display: none !important;}
+        header[data-testid="stHeader"] {display: none !important;}
+        div[data-testid="stDecoration"] {display: none !important;}
+        div[data-testid="stSidebarNavItems"] {display: none !important;}
+        button[kind="header"] {display: none !important;}
+        div[data-baseweb="tab-list"] {display: none !important;}
+        div[role="tablist"] {display: none !important;}
+        div[data-testid="stSidebarNavContainer"] {display: none !important;}
+        
+        /* Title styling */
+        .stMarkdown {
+            text-align: center !important;
+            font-size: 1.5rem !important;
+            font-weight: bold !important;
+            margin-bottom: 1rem !important;
+            color: white !important;
+            width: 320px !important;
+            margin-left: auto !important;
+            margin-right: auto !important;
+        }
         
         /* Remove padding and gap */
         .block-container {
@@ -45,6 +68,10 @@ hide_menu_style = """
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 100%;
         }
         
         .login-container h1 {
@@ -52,6 +79,7 @@ hide_menu_style = """
             text-align: center;
             font-size: 2rem;
             color: white;
+            width: 320px;
         }
 
         /* Force all elements to have the same width */
@@ -149,8 +177,9 @@ hide_menu_style = """
         }
 
         hr {
-            margin: 24px auto;
+            margin: 24px auto !important;
             width: 320px !important;
+            border-color: rgba(255, 255, 255, 0.1) !important;
         }
 
         /* Adjust input labels */
@@ -170,6 +199,13 @@ hide_menu_style = """
         /* Fix any overflow issues */
         .stTextInput, .stButton, input {
             box-sizing: border-box !important;
+        }
+        
+        /* Ensure consistent width for all markdown elements */
+        .stMarkdown > div {
+            width: 320px !important;
+            margin-left: auto !important;
+            margin-right: auto !important;
         }
         </style>
         """
@@ -197,7 +233,9 @@ if 'user_data' not in st.session_state:
 
 # Login form
 st.markdown('<div class="login-container">', unsafe_allow_html=True)
-st.title("🤖 Trading Bot")
+
+# Add title with robot icon
+st.markdown("# 🤖 Trading Bot", unsafe_allow_html=True)
 
 username = st.text_input("Usuário")
 password = st.text_input("Senha", type="password")

@@ -13,7 +13,8 @@ st.set_page_config(
     page_title="Trading Bot - Dashboard",
     page_icon="🤖",
     layout="wide",
-    initial_sidebar_state="expanded"
+    initial_sidebar_state="expanded",
+    menu_items={}
 )
 
 # Hide Streamlit default menu and footer
@@ -22,22 +23,24 @@ hide_menu_style = """
         #MainMenu {visibility: hidden;}
         footer {visibility: hidden;}
         .stDeployButton {display:none;}
+
+        /* Hide only the default navigation */
         section[data-testid="stSidebarNav"] {display: none !important;}
-        div[data-testid="stToolbar"] {display: none !important;}
-        
+        div[data-testid="stSidebarNav"] {display: none !important;}
+
         /* Dark theme and general styles */
         .stApp {
             background-color: #0E1117;
         }
-        
+
         h1, h2, h3, h4, h5, h6 {
             color: white;
         }
-        
+
         p {
             color: rgba(250, 250, 250, 0.8);
         }
-        
+
         /* Card styling */
         div[data-testid="stHorizontalBlock"] > div {
             background-color: rgb(28, 28, 28);
@@ -62,8 +65,21 @@ if selected:
         st.switch_page("pages/moedas_ativas.py")
     elif selected == "comprar ordem":
         st.switch_page("pages/comprar_ordem.py")
+    elif selected == "vender ordem":
+        st.switch_page("pages/vender_ordem.py")
 
 st.title("📊 Dashboard")
+
+# Add BI Dashboard button
+st.markdown("""
+<div style="text-align: center; margin-bottom: 20px;">
+    <a href="https://app.powerbi.com/links/J-ra0ejrxE?ctid=da49a844-e2e3-40af-86a6-c3819d704f49&pbi_source=linkShare" target="_blank">
+        <button style="background-color: #1E88E5; color: white; padding: 12px 24px; border: none; border-radius: 6px; cursor: pointer; font-size: 16px; font-weight: 500; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); transition: all 0.3s ease;">
+            <span style="display: inline-block; vertical-align: middle;">📊 BI Dashboard</span>
+        </button>
+    </a>
+</div>
+""", unsafe_allow_html=True)
 
 # Layout em colunas para os cards
 col1, col2, col3 = st.columns(3)
@@ -82,4 +98,4 @@ with col3:
 
 # Gráficos e tabelas
 st.markdown("### 📊 Histórico de Operações")
-st.markdown("Em desenvolvimento...") 
+st.markdown("Em desenvolvimento...")
