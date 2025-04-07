@@ -5,7 +5,7 @@ Este projeto consiste em um sistema de trading automatizado para criptomoedas, c
 ## Acesso à Aplicação
 
 A aplicação está disponível através do seguinte link:
-- URL da Aplicação: [https://ibmec-trading-bot-bfg3gngbgre4ambh.centralus-01.azurewebsites.net](https://ibmec-trading-bot-bfg3gngbgre4ambh.centralus-01.azurewebsites.net)
+- URL da Aplicação: [https://ibmec-trading-bot-interface-ekftbjfzcmbbg5he.centralus-01.azurewebsites.net/](https://ibmec-trading-bot-interface-ekftbjfzcmbbg5he.centralus-01.azurewebsites.net/)
 
 ## Executando a Aplicação
 
