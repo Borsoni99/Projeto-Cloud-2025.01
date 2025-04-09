@@ -70,32 +70,25 @@ if selected:
 
 st.title("📊 Dashboard")
 
-# Add BI Dashboard button
+# Add BI Dashboard button and embedded dashboard
 st.markdown("""
 <div style="text-align: center; margin-bottom: 20px;">
-    <a href="https://app.powerbi.com/links/J-ra0ejrxE?ctid=da49a844-e2e3-40af-86a6-c3819d704f49&pbi_source=linkShare" target="_blank">
+    <a href=https://app.powerbi.com/groups/me/reports/efb1b5bf-d4af-423c-a201-dd0a843c1540/9659a5494202205bc821?ctid=da49a844-e2e3-40af-86a6-c3819d704f49&experience=power-bi" target="_blank">
         <button style="background-color: #1E88E5; color: white; padding: 12px 24px; border: none; border-radius: 6px; cursor: pointer; font-size: 16px; font-weight: 500; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); transition: all 0.3s ease;">
-            <span style="display: inline-block; vertical-align: middle;">📊 BI Dashboard</span>
+            <span style="display: inline-block; vertical-align: middle;">📊 Open BI Dashboard in New Tab</span>
         </button>
     </a>
 </div>
 """, unsafe_allow_html=True)
 
-# Layout em colunas para os cards
-col1, col2, col3 = st.columns(3)
-
-with col1:
-    st.markdown("### 💰 Saldo")
-    st.markdown("R$ 1.000,00")
-
-with col2:
-    st.markdown("### 📈 Lucro Total")
-    st.markdown("R$ 250,00")
-
-with col3:
-    st.markdown("### 🎯 Operações")
-    st.markdown("15 operações realizadas")
-
-# Gráficos e tabelas
-st.markdown("### 📊 Histórico de Operações")
-st.markdown("Em desenvolvimento...")
+# Embedded Power BI Dashboard
+st.markdown("### 📈 Power BI Dashboard")
+st.markdown("""
+<div style="position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden; margin-bottom: 20px;">
+    <iframe src="https://app.powerbi.com/reportEmbed?reportId=efb1b5bf-d4af-423c-a201-dd0a843c1540&autoAuth=true&ctid=da49a844-e2e3-40af-86a6-c3819d704f49"
+            frameborder="0"
+            allowFullScreen="true"
+            style="position: absolute; top: 0; left: 0; width: 100%; height: 100%;">
+    </iframe>
+</div>
+""", unsafe_allow_html=True)
