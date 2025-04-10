@@ -75,14 +75,14 @@ st.markdown("""
 <div style="text-align: center; margin-bottom: 20px;">
     <a href=https://app.powerbi.com/groups/me/reports/efb1b5bf-d4af-423c-a201-dd0a843c1540/9659a5494202205bc821?ctid=da49a844-e2e3-40af-86a6-c3819d704f49&experience=power-bi" target="_blank">
         <button style="background-color: #1E88E5; color: white; padding: 12px 24px; border: none; border-radius: 6px; cursor: pointer; font-size: 16px; font-weight: 500; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); transition: all 0.3s ease;">
-            <span style="display: inline-block; vertical-align: middle;">📊 Open BI Dashboard in New Tab</span>
+            <span style="display: inline-block; vertical-align: middle;">📊 Abra o Dashboard numa outra aba</span>
         </button>
     </a>
 </div>
 """, unsafe_allow_html=True)
 
 # Embedded Power BI Dashboard
-st.markdown("### 📈 Power BI Dashboard")
+st.markdown("### 📈 Trading Bot Dashboard")
 st.markdown("""
 <div style="position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden; margin-bottom: 20px;">
     <iframe src="https://app.powerbi.com/reportEmbed?reportId=efb1b5bf-d4af-423c-a201-dd0a843c1540&autoAuth=true&ctid=da49a844-e2e3-40af-86a6-c3819d704f49"
