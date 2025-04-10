@@ -3,8 +3,8 @@
 Este projeto consiste em um sistema de trading automatizado para criptomoedas, composto por uma API Flask para gerenciamento de operações e uma interface Streamlit para interação com o usuário. O sistema permite que usuários configurem, monitorem e executem operações de compra e venda de criptomoedas de forma automatizada.
 
 ## Integrantes do grupo
-Daniel Lloyd
-Guilherme Duran
+Daniel Lloyd,
+Guilherme Duran,
 Thiago Borsoni
 
 ## Acesso à Aplicação
