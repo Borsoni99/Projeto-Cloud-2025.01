@@ -1,0 +1,56 @@
+# Arquivos e diretórios do Git
+.git
+.gitignore
+
+# Arquivos Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Arquivos de ambiente virtual
+venv/
+ENV/
+
+# Arquivos de IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Arquivos de log
+*.log
+
+# Arquivos de banco de dados
+*.db
+*.sqlite3
+
+# Arquivos de cache
+.cache/
+.pytest_cache/
+
+# Arquivos Docker
+Dockerfile
+docker-compose.yml
+.dockerignore
+
+# Outros
+.DS_Store
+.env
+.env.* 

@@ -1,0 +1,45 @@
+services:
+  api:
+    build: .
+    ports:
+      - "8000:8000"
+    environment:
+      - FLASK_ENV=development
+      - DATABASE_URL=mysql+pymysql://root:admin@db/trading_bot
+      - API_BASE_URL=http://localhost:8000
+    depends_on:
+      - db
+    networks:
+      - trading-network
+
+  interface:
+    build: 
+      context: .
+      dockerfile: interface/Dockerfile
+    ports:
+      - "8501:8501"
+    environment:
+      - API_BASE_URL=http://localhost:8000
+    depends_on:
+      - api
+    networks:
+      - trading-network
+
+  db:
+    image: mysql:8.0
+    ports:
+      - "3306:3306"
+    environment:
+      - MYSQL_ROOT_PASSWORD=admin
+      - MYSQL_DATABASE=trading_bot
+    volumes:
+      - mysql-data:/var/lib/mysql
+    networks:
+      - trading-network
+
+networks:
+  trading-network:
+    driver: bridge
+
+volumes:
+  mysql-data: 

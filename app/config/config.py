@@ -6,9 +6,9 @@ load_dotenv()
 
 class Config:
     # Database configuration
-    SQLALCHEMY_DATABASE_URI = os.getenv('DATABASE_URL', 'mysql+pymysql://grupo:administrador99*@trading-bot.mysql.database.azure.com/trading-bot?ssl_verify_cert=false')
+    SQLALCHEMY_DATABASE_URI = os.getenv('DATABASE_URL', 'mysql+pymysql://root:admin@db/trading_bot')
     SQLALCHEMY_TRACK_MODIFICATIONS = False
-    
+    # 'mysql+pymysql://grupo:administrador99*@trading-bot.mysql.database.azure.com/trading-bot?ssl_verify_cert=false'
     # Environment
     ENV = os.getenv('FLASK_ENV', 'development')
     DEBUG = ENV == 'development'
