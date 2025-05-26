@@ -1,5 +1,5 @@
 # Imagem base
-FROM python:3.9-slim
+FROM --platform=linux/amd64 python:3.9-slim-bullseye
 
 # Definir diretório de trabalho
 WORKDIR /app
@@ -17,10 +17,13 @@ COPY interface/requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
 # Copiar o código da interface
-COPY interface/ .
+COPY interface/ /app/interface/
+
+# Adicionar o diretório ao PYTHONPATH
+ENV PYTHONPATH=/app
 
 # Expor a porta
 EXPOSE 8501
 
 # Comando para iniciar a interface
-CMD ["streamlit", "run", "Home.py", "--server.port=8501", "--server.address=0.0.0.0"] 
+CMD ["streamlit", "run", "interface/Home.py", "--server.port=8501", "--server.address=0.0.0.0"] 

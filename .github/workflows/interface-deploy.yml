@@ -1,102 +1,23 @@
-name: Deploy Interface to Azure Web App
+name: Deploy Interface to Azure Container Registry
 
 on:
   push:
     branches: [ main ]
     paths:
       - 'interface/**'
-      - 'run_interface.py'
+      - 'interface/Dockerfile'
       - '!app/**'
   workflow_dispatch:
 
 jobs:
-  build:
+  build-and-push:
     runs-on: ubuntu-latest
     permissions:
       contents: read
+      id-token: write
 
     steps:
     - uses: actions/checkout@v4
-    
-    - name: Set up Python
-      uses: actions/setup-python@v5
-      with:
-        python-version: '3.11'
-    
-    - name: Create and start virtual environment
-      run: |
-        python -m venv venv
-        source venv/bin/activate
-    
-    - name: Install dependencies
-      run: |
-        python -m pip install --upgrade pip
-        pip install -r interface/requirements.txt
-    
-    - name: Prepare deployment files
-      run: |
-        # Criar uma estrutura temporária para o deploy
-        mkdir -p deploy_temp
-        
-        # Copiar todos os arquivos necessários
-        cp -r interface/* deploy_temp/
-        
-        # Não precisamos do run_interface.py pois usamos o startup.py no Azure
-        # cp run_interface.py deploy_temp/
-        
-        # Garantir que o arquivo de configuração exista
-        cat > deploy_temp/web.config << 'EOF'
-        <?xml version="1.0" encoding="utf-8"?>
-        <configuration>
-          <system.webServer>
-            <handlers>
-              <add name="PythonHandler" path="*" verb="*" modules="httpPlatformHandler" resourceType="Unspecified"/>
-            </handlers>
-            <httpPlatform processPath="%home%\python311x64\python.exe"
-                          arguments="startup.py"
-                          stdoutLogEnabled="true"
-                          stdoutLogFile="%home%\LogFiles\python.log">
-              <environmentVariables>
-                <environmentVariable name="PYTHONPATH" value="%home%\site\wwwroot"/>
-              </environmentVariables>
-            </httpPlatform>
-          </system.webServer>
-        </configuration>
-        EOF
-        
-        echo "Arquivos na pasta deploy_temp:"
-        ls -la deploy_temp/
-        
-        # Zipar arquivos
-        cd deploy_temp
-        zip -r ../release.zip .
-
-    - name: Upload artifact for deployment jobs
-      uses: actions/upload-artifact@v4
-      with:
-        name: interface-app
-        path: |
-          release.zip
-          !venv/
-
-  deploy:
-    runs-on: ubuntu-latest
-    needs: build
-    environment:
-      name: 'Production'
-      url: ${{ steps.deploy-to-webapp.outputs.webapp-url }}
-    permissions:
-      id-token: write
-      contents: read
-
-    steps:
-    - name: Download artifact from build job
-      uses: actions/download-artifact@v4
-      with:
-        name: interface-app
-
-    - name: Unzip artifact for deployment
-      run: unzip release.zip
 
     - name: Login to Azure
       uses: azure/login@v2
@@ -105,9 +26,17 @@ jobs:
         tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID_5EF9AAB8813D40098C11678B4DFFCE3F }}
         subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_EBB69C55025244499429F441458764A0 }}
 
-    - name: Deploy to Azure Web App (Interface)
-      uses: azure/webapps-deploy@v3
-      id: deploy-to-webapp
+    - name: Login to Azure Container Registry
+      uses: azure/docker-login@v1
       with:
-        app-name: 'ibmec-trading-bot-interface'
-        slot-name: 'Production' 
+        login-server: ibmecdockerimage.azurecr.io
+        username: ${{ secrets.REGISTRY_USERNAME }}
+        password: ${{ secrets.REGISTRY_PASSWORD }}
+
+    - name: Build and push Interface image
+      uses: azure/docker-build-and-push@v1
+      with:
+        image-name: ibmecdockerimage.azurecr.io/projeto-cloud-202501-interface
+        push: true
+        tags: latest
+        file: interface/Dockerfile 

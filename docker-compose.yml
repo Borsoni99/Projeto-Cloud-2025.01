@@ -5,10 +5,11 @@ services:
       - "8000:8000"
     environment:
       - FLASK_ENV=development
-      - DATABASE_URL=mysql+pymysql://root:admin@db/trading_bot
-      - API_BASE_URL=http://localhost:8000
+      - DATABASE_URL=mysql+pymysql://root:admin123@db:3306/trading_bot
+      - API_BASE_URL=http://api:8000
     depends_on:
-      - db
+      db:
+        condition: service_healthy
     networks:
       - trading-network
 
@@ -19,7 +20,7 @@ services:
     ports:
       - "8501:8501"
     environment:
-      - API_BASE_URL=http://localhost:8000
+      - API_BASE_URL=http://api:8000
     depends_on:
       - api
     networks:
@@ -28,14 +29,19 @@ services:
   db:
     image: mysql:8.0
     ports:
-      - "3306:3306"
+      - "3307:3306"
     environment:
-      - MYSQL_ROOT_PASSWORD=admin
+      - MYSQL_ROOT_PASSWORD=admin123
       - MYSQL_DATABASE=trading_bot
     volumes:
       - mysql-data:/var/lib/mysql
     networks:
       - trading-network
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-padmin123"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
 
 networks:
   trading-network:
