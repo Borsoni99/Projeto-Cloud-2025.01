@@ -34,9 +34,6 @@ jobs:
         password: ${{ secrets.REGISTRY_PASSWORD }}
 
     - name: Build and push Interface image
-      uses: azure/docker-build-and-push@v1
-      with:
-        image-name: ibmecdockerimage.azurecr.io/projeto-cloud-202501-interface
-        push: true
-        tags: latest
-        file: interface/Dockerfile 
+      run: |
+        docker build -t ibmecdockerimage.azurecr.io/projeto-cloud-202501-interface:latest -f interface/Dockerfile .
+        docker push ibmecdockerimage.azurecr.io/projeto-cloud-202501-interface:latest 

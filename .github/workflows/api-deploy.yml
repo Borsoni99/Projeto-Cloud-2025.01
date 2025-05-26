@@ -36,9 +36,6 @@ jobs:
         password: ${{ secrets.REGISTRY_PASSWORD }}
 
     - name: Build and push API image
-      uses: azure/docker-build-and-push@v1
-      with:
-        image-name: ibmecdockerimage.azurecr.io/projeto-cloud-202501-api
-        push: true
-        tags: latest
-        file: Dockerfile 
+      run: |
+        docker build -t ibmecdockerimage.azurecr.io/projeto-cloud-202501-api:latest .
+        docker push ibmecdockerimage.azurecr.io/projeto-cloud-202501-api:latest 
