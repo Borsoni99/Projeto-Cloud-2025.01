@@ -1,5 +1,4 @@
-name: Deploy API to Azure Container Registry
-
+name: Deploy API to Azure Container Registry 
 on:
   push:
     branches: [ main ]

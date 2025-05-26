@@ -1,4 +1,4 @@
-name: Deploy Interface to Azure Container Registry
+name: Deploy Interface to Azure Container Registry 
 
 on:
   push:
