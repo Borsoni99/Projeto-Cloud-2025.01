@@ -11,7 +11,7 @@ moedas_ativas_bp = Blueprint('moedas_ativas', __name__)
 
 @moedas_ativas_bp.route('/trading-pairs', methods=['GET'])
 def get_trading_pairs():
-    """Obtém todos os pares de trading disponíveis na Binance"""
+    """Obtém todos os pares de trading que estão disponíveis na Binance"""
     try:
         # Inicializar o serviço Binance sem chaves API
         binance_service = BinanceService(None, None)
