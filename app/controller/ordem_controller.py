@@ -14,7 +14,7 @@ ordem_bp = Blueprint('ordem', __name__)
 
 @ordem_bp.route('/<int:usuario_id>', methods=['POST'])
 def create_ordem(usuario_id):
-    """Cria uma nova ordem"""
+    """Criar uma nova ordem"""
     try:
         # Verificar se o usuário existe
         usuario = Usuario.query.get(usuario_id)
