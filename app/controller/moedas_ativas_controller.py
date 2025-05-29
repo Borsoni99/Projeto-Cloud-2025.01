@@ -36,7 +36,7 @@ def get_trading_pairs():
 
 @moedas_ativas_bp.route('/<int:usuario_id>', methods=['GET'])
 def get_moedas_ativas(usuario_id):
-    """Obtém todas as moedas ativas de um usuário com seus últimos preços"""
+    """Obtém todas as moedas ativas de um usuário com seus últimos preços disponíveis na Binance"""
     try:
         # Verificar se o usuário existe
         usuario = Usuario.query.get(usuario_id)

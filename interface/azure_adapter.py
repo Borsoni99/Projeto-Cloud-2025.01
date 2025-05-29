@@ -3,7 +3,7 @@
 
 """
 Script para adaptar os arquivos para funcionarem no Azure.
-Este script é executado durante o deploy para ajustar os imports.
+Este script é executado durante o deploy para ajustar todos os imports.
 """
 
 import os
